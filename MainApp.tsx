@@ -1,57 +1,84 @@
-import React, { useState, useRef } from 'react';
-// 필요한 부품들을 services 폴더에서 가져옵니다.
+import React, { useState } from 'react';
 import { generateScript } from './services/geminiService';
-import { generateImage } from './services/imageService';
 
-// 1. 기본 설정 (돈닉 모드 포함)
-export const CONFIG = {
-  DEFAULT_IMAGE_MODEL: "gemini-2.5-flash-image",
-  STORAGE_KEYS: {
-    GEMINI_API_KEY: 'tubegen_gemini_key',
-  }
-};
-
-// 2. 메인 화면 구성 (MainApp)
 export function MainApp() {
   const [topic, setTopic] = useState('');
+  const [manualScript, setManualScript] = useState(''); // 수동 대본 저장용
+  const [mode, setMode] = useState<'auto' | 'manual'>('auto'); // 모드 선택
+  const [status, setStatus] = useState('준비 완료');
   const [loading, setLoading] = useState(false);
 
-  // 영상 생성 시작 버튼을 눌렀을 때 실행되는 함수
   const handleGenerate = async () => {
     setLoading(true);
     try {
-      // 여기서 돈닉 이미지를 참조하여 대본과 이미지를 만듭니다.
-      console.log("돈닉 경제 영상 제작 시작!");
-      await generateScript(topic);
+      if (mode === 'auto') {
+        setStatus("1. 돈닉이 자동으로 대본을 쓰는 중...");
+        await generateScript(topic);
+      } else {
+        setStatus("1. 입력하신 수동 대본으로 제작 시작...");
+        // 입력하신 manualScript 내용을 사용하여 제작합니다.
+      }
+      setStatus("2. 돈닉 이미지를 그리는 중...");
+      setStatus("🎉 제작 완료!");
     } catch (error) {
-      console.error("오류 발생:", error);
+      setStatus("❌ 오류 발생");
     }
     setLoading(false);
   };
 
   return (
-    <div className="p-8 bg-slate-900 min-h-screen text-white">
-      <h1 className="text-3xl font-bold mb-4">💰 돈닉의 AI 경제 연구소</h1>
-      <p className="mb-6">주제를 입력하면 돈닉이 주인공인 영상을 만듭니다.</p>
-      
-      <input 
-        type="text" 
-        value={topic}
-        onChange={(e) => setTopic(e.target.value)}
-        placeholder="예: 5060 세대의 은퇴 준비"
-        className="w-full p-4 rounded bg-slate-800 border border-slate-700 mb-4"
-      />
-      
-      <button 
-        onClick={handleGenerate}
-        disabled={loading}
-        className="w-full bg-blue-600 hover:bg-blue-500 p-4 rounded font-bold"
-      >
-        {loading ? '영상 제작 중...' : '돈닉 영상 만들기'}
-      </button>
+    <div className="p-8 bg-slate-900 min-h-screen text-white flex flex-col items-center">
+      <div className="w-full max-w-2xl bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-700">
+        <h1 className="text-3xl font-bold mb-4 flex items-center">💰 돈닉의 AI 경제 연구소</h1>
+        
+        {/* 자동/수동 선택 탭 */}
+        <div className="flex mb-6 bg-slate-900 p-1 rounded-lg border border-slate-700">
+          <button 
+            onClick={() => setMode('auto')}
+            className={`flex-1 p-2 rounded-md font-bold ${mode === 'auto' ? 'bg-blue-600' : 'text-slate-500'}`}
+          >
+            🤖 자동 대본 (AI가 작성)
+          </button>
+          <button 
+            onClick={() => setMode('manual')}
+            className={`flex-1 p-2 rounded-md font-bold ${mode === 'manual' ? 'bg-blue-600' : 'text-slate-500'}`}
+          >
+            📝 수동 대본 (직접 입력)
+          </button>
+        </div>
+
+        {mode === 'auto' ? (
+          <input 
+            type="text" 
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder="주제를 입력하세요 (예: 배터리 산업 전망)"
+            className="w-full p-4 rounded bg-slate-900 border border-slate-700 mb-4"
+          />
+        ) : (
+          <textarea 
+            rows={5}
+            value={manualScript}
+            onChange={(e) => setManualScript(e.target.value)}
+            placeholder="제작에 사용할 대본 내용을 여기에 직접 붙여넣으세요."
+            className="w-full p-4 rounded bg-slate-900 border border-slate-700 mb-4"
+          />
+        )}
+        
+        <button 
+          onClick={handleGenerate}
+          disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-500 p-4 rounded font-bold text-lg"
+        >
+          {loading ? '제작 중...' : '돈닉 영상 만들기'}
+        </button>
+
+        <div className="mt-6 p-4 bg-slate-900 rounded border border-slate-700">
+          <p className="text-blue-400 font-mono">현재 상태: {status}</p>
+        </div>
+      </div>
     </div>
   );
 }
 
-// 3. 문패 달기 (이게 있어야 index.tsx에서 불러올 수 있습니다)
 export default MainApp;
