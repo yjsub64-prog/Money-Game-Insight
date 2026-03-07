@@ -1,36 +1,46 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { CONFIG, PRICING, formatKRW } from './config';
-import { generateAudioForScene } from './services/geminiService';
-import { generateImage } from './services/imageService';
-import { generateVideo } from './services/falService';
+export const IMAGE_MODELS = [
+  {
+    id: 'gemini-2.5-flash-image',
+    name: 'Gemini 2.5 Flash',
+    provider: 'Google',
+    pricePerImage: 0.0315,
+    description: '고품질, 프롬프트 이해력 우수',
+    speed: '보통'
+  },
+  {
+    id: 'nano-banana-pro',
+    name: 'Nano Banana Pro',
+    provider: 'Google',
+    pricePerImage: 0.15,
+    description: '텍스트 렌더링 우수, 캐릭터 일관성 고품질',
+    speed: '느림'
+  },
+] as const;
 
-// 핵심: runAudio 함수가 Gemini TTS를 사용하도록 통합됨
-const App: React.FC = () => {
-  // ... (중략: 기존 UI 로직 유지) ...
+export const PRICING = {
+  USD_TO_KRW: 1450,
+  IMAGE: {
+    'gemini-2.5-flash-image': 0.0315,
+    'nano-banana-pro': 0.15,
+  },
+  TTS: {
+    perCharacter: 0, // Gemini TTS 통합으로 무료 처리
+  },
+  VIDEO: {
+    perVideo: 0.15,
+  }
+} as const;
 
-  const runAudio = async () => {
-    for (let i = 0; i < initialAssets.length; i++) {
-      if (isAbortedRef.current) break;
-      setProgressMessage(`씬 ${i + 1} Gemini 음성 생성 중...`);
-      try {
-        const audioData = await generateAudioForScene(assetsRef.current[i].narration);
-        if (audioData && !isAbortedRef.current) {
-          updateAssetAt(i, { audioData, status: 'completed' });
-          addCost('tts', 0, assetsRef.current[i].narration.length);
-        }
-      } catch (e: any) {
-        console.error(`실패:`, e.message);
-        updateAssetAt(i, { status: 'error' });
-      }
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-  };
+export function formatKRW(usd: number): string {
+  return Math.round(usd * 1450).toLocaleString('ko-KR') + '원';
+}
 
-  // 캐릭터 참조 이미지가 있으면 까마귀(Kkaak) 프롬프트를 덮어쓰는 로직 포함
-  // ... (생략된 UI 코드) ...
-  return (
-    <div>TubeGen Studio - Donnic Mode Active</div>
-  );
+export const CONFIG = {
+  DEFAULT_IMAGE_MODEL: "gemini-2.5-flash-image",
+  STORAGE_KEYS: {
+    GEMINI_API_KEY: 'tubegen_gemini_key',
+    FAL_API_KEY: 'tubegen_fal_key',
+    IMAGE_MODEL: 'tubegen_image_model',
+    PROJECTS: 'tubegen_projects',
+  }
 };
-
-export default App;
