@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 // services 폴더에 우리가 고생해서 만든 파일들을 연결합니다.
-import { generateScript } from './services/geminiService';
-import { generateImage } from './services/imageService';
-import { generateVideo } from './services/falService';
+import { generateScript } from './services/services/geminiService';
+import { generateImage } from './services/services/imageService';
+import { generateVideo } from './services/services/falService';
 
 export function MainApp() {
   const [topic, setTopic] = useState('');
@@ -84,4 +84,5 @@ export function MainApp() {
 }
 
 export default MainApp;
+
 
