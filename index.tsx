@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-// ⚠️ 이 부분이 핵심입니다! 중괄호를 빼고 가져와야 합니다.
-import MainApp from './MainApp'; 
+// ⚠️ MainApp 대신 소문자 m으로 시작하는 ./mainapp 으로 바꿔보세요!
+import MainApp from './mainapp'; 
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
